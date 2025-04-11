@@ -1,5 +1,111 @@
 ---
 title: "HW8"
-output: html_document
+author:
+- Surafel Geleta
+- ssg2775
+- https://github.com/surafelgeleta/SDS_315_HW8
+output:
+  pdf_document: default
+  html_document: default
 ---
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Calling packages
+library(tidyverse)
+library(mosaic)
+
+# Reading in data
+creatinine <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW8\\creatinine.csv")
+covid <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW8\\covid.csv")
+milk <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW8\\milk.csv")
+```
+
+# Problem 1
+
+## A
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
+# Mean creatine clearance rate grouped by age
+creatinine %>% 
+  group_by(age) %>% 
+  summarize(mean_creatinine_clearance = mean(creatclear))
+```
+
+We should expect a creatinine clearance rate of about 114 mL/minute for a 55 year old. This was obtained by finding the mean creatinine clearance of 55 year olds in the dataset.
+
+## Part B
+
+```{r, echo = FALSE, message = FALSE, results = 'hide'}
+# Regressing creatinine clearance rate on age
+lm(creatclear ~ age, data = creatinine)
+```
+For every one-year increase in age, creatinine clearance should fall by -0.6198 mL/minute. I obtained this by fitting a linear model on the data, with "creatclear" as the outcome variable and "age" as the predictor, and taking the slope of the model.
+
+## Part C
+
+```{r echo=FALSE, results='hide', message=FALSE}
+# Residual of 40-year old with 135mL/minute rate
+135 - (147 - 0.6198*40)
+
+# Residual of 60-year old with 112mL/minute rate
+112 - (147 - 0.6198*60)
+```
+The 40-year old has a healthier creatinine clearance rate than the 60-year old. This was obtained by finding the residual for each case, which was the individual's actual creatinine clearance rate subtracted by their predicted creatinine clearance rate. The 40-year old had a residual of 12.792 mL/minute and the 60-year old had a residual of 2.188 mL/minute, indicating that the 40-year old has a higher creatinine clearance rate for his age than the 60-year old does.
+
+# Problem 2
+
+## 1.
+
+```{r echo=FALSE, results='hide', message=FALSE}
+set.seed(900)
+
+# 10000 exponential models from 10000 bootstrapped samples of the data subsetted to only include Italy
+boot_italy = do(10000)*lm(log(deaths) ~ days_since_first_death, data = resample(covid[covid$country == "Italy",]))
+
+# 95% confidence interval
+confint(boot_italy)
+
+# Doubling time
+70/(0.1595057*100)
+70/(0.2081915*100)
+```
+It can be stated with 95% confidence that the true daily growth rate of COVID deaths in Italy lies between 0.159 and 0.208. It can also be stated with 95% confidence that the true doubling time of COVID deaths in Italy lies between 4.4 and 3.4 days.
+
+## 2.
+
+```{r echo=FALSE, results='hide', message=FALSE}
+# 10000 exponential models from 10000 bootstrapped samples of the data subsetted to only include Spain
+boot_spain = do(10000)*lm(log(deaths) ~ days_since_first_death, data = resample(covid[covid$country == "Spain",]))
+
+# 95% confidence interval
+confint(boot_spain)
+
+# Doubling time
+70/(0.2352879*100)
+70/(0.3190304	*100)
+```
+
+It can be stated with 95% confidence that the true daily growth rate of COVID deaths in Spain lies between 0.235 and 0.317. It can also be stated with 95% confidence that the true doubling time of COVID deaths in Italy lies between 3.0 and 2.2 days.
+
+## 3.
+
+```{r echo=FALSE, results='hide', message=FALSE}
+ggplot(covid, aes(x = days_since_first_death, y = deaths, group = country, color = country)) +
+  geom_line() +
+  labs(x = "Days Since First Death",
+       y = "Reported Daily COVID-19 Deaths",
+       title = "COVID Death Growth in Italy and Spain, Feb.-Apr. 2020")
+```
+
+# Problem 3
+
+```{r echo = FALSE, message= FALSE, warning = FALSE, results = 'hide'}
+# 10000 bootstrapped linear models regressing logarithm of sales on logarithm of milk prices 
+boot_milk = do(10000)*lm(log(sales) ~ log(price), data = resample(milk))
+
+# 95% confidence interval
+confint(boot_milk)
+```
+
+Since the data follows a power law, I fit a linear model on the data and regressed the logarithm of milk sales (outcome) on the logarithm of milk prices (predictor). I repeated this 10000 times using 10000 bootstrapped samples and generated a 95% confidence interval.
+From there, it can be stated with 95% confidence that the true elasticity, or percent change of milk sales when milk prices increase by 1%, lies between -1.773% and -1.458%. 
