@@ -22,7 +22,7 @@ milk <- read.csv("C:\\Users\\gelet\\OneDrive\\Documents\\SDS315\\HW8\\milk.csv")
 
 # Problem 1
 
-## A
+## Part A
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results = 'hide'}
 # Mean creatine clearance rate grouped by age
@@ -31,7 +31,7 @@ creatinine %>%
   summarize(mean_creatinine_clearance = mean(creatclear))
 ```
 
-We should expect a creatinine clearance rate of about 114 mL/minute for a 55 year old. This was obtained by finding the mean creatinine clearance of 55 year olds in the dataset.
+We should expect a creatinine clearance rate of about 114 mL/minute for a 55 year old. This was obtained by finding the mean creatinine clearance rate of subjects 55 years of age in the dataset.
 
 ## Part B
 
